@@ -1,0 +1,200 @@
+[
+  {
+    "id": "fe_cr_lc",
+    "name": "Low-Carbon Ferro-Chrome (LC FeCr)",
+    "description": "Crucial for stainless and heat resistant steels with strict carbon ceiling.",
+    "cost_per_kg": 2.80,
+    "recovery": 0.92,
+    "composition": {
+      "Cr": 70.0,
+      "C": 0.05,
+      "Si": 1.0,
+      "Fe": 28.5
+    }
+  },
+  {
+    "id": "fe_cr_hc",
+    "name": "High-Carbon Ferro-Chrome (HC FeCr)",
+    "description": "Economical chromium source for high carbon tool steels and wear alloys.",
+    "cost_per_kg": 1.60,
+    "recovery": 0.90,
+    "composition": {
+      "Cr": 65.0,
+      "C": 7.0,
+      "Si": 2.0,
+      "Fe": 25.5
+    }
+  },
+  {
+    "id": "fe_mn_lc",
+    "name": "Low-Carbon Ferro-Manganese (LC FeMn)",
+    "description": "Manganese addition without carbon pickup.",
+    "cost_per_kg": 2.10,
+    "recovery": 0.88,
+    "composition": {
+      "Mn": 80.0,
+      "C": 0.5,
+      "Si": 1.0,
+      "Fe": 18.0
+    }
+  },
+  {
+    "id": "fe_mn_hc",
+    "name": "High-Carbon Ferro-Manganese (HC FeMn)",
+    "description": "Standard manganese deoxidizer and alloying agent.",
+    "cost_per_kg": 1.30,
+    "recovery": 0.85,
+    "composition": {
+      "Mn": 75.0,
+      "C": 7.0,
+      "Si": 1.5,
+      "Fe": 16.0
+    }
+  },
+  {
+    "id": "pure_ni",
+    "name": "Pure Electrolytic Nickel Briquettes / Cathodes",
+    "description": "Essential for austenitic stainless, duplex, and nickel superalloys.",
+    "cost_per_kg": 16.50,
+    "recovery": 0.98,
+    "composition": {
+      "Ni": 99.8,
+      "Fe": 0.1
+    }
+  },
+  {
+    "id": "fe_mo",
+    "name": "Ferro-Molybdenum (FeMo 60)",
+    "description": "High-density molybdenum addition for pitting resistance and high-temp strength.",
+    "cost_per_kg": 42.00,
+    "recovery": 0.95,
+    "composition": {
+      "Mo": 60.0,
+      "C": 0.1,
+      "Si": 1.5,
+      "Fe": 38.0
+    }
+  },
+  {
+    "id": "fe_si_75",
+    "name": "Ferro-Silicon (FeSi 75)",
+    "description": "Silicon deoxidizer and alloying element.",
+    "cost_per_kg": 1.50,
+    "recovery": 0.85,
+    "composition": {
+      "Si": 75.0,
+      "Al": 1.2,
+      "Fe": 23.5
+    }
+  },
+  {
+    "id": "fe_v",
+    "name": "Ferro-Vanadium (FeV 80)",
+    "description": "Grain refiner and carbide former for high strength and tool steels.",
+    "cost_per_kg": 32.00,
+    "recovery": 0.90,
+    "composition": {
+      "V": 78.0,
+      "Si": 1.5,
+      "Al": 1.5,
+      "Fe": 18.5
+    }
+  },
+  {
+    "id": "fe_nb",
+    "name": "Ferro-Niobium (FeNb 65)",
+    "description": "Stabilizing element against intergranular corrosion (AISI 347, Inconel 718).",
+    "cost_per_kg": 48.00,
+    "recovery": 0.88,
+    "composition": {
+      "Nb": 65.0,
+      "Ta": 0.5,
+      "Si": 2.0,
+      "Fe": 32.0
+    }
+  },
+  {
+    "id": "fe_ti",
+    "name": "Ferro-Titanium (FeTi 70)",
+    "description": "Stabilizing element and grain refiner (AISI 321, 316Ti). Highly reactive.",
+    "cost_per_kg": 9.50,
+    "recovery": 0.65,
+    "composition": {
+      "Ti": 70.0,
+      "Al": 4.0,
+      "Si": 2.5,
+      "Fe": 23.0
+    }
+  },
+  {
+    "id": "fe_w",
+    "name": "Ferro-Tungsten (FeW 75)",
+    "description": "Essential hot-hardness carbide former for High Speed Steels (HSS T and M series).",
+    "cost_per_kg": 38.00,
+    "recovery": 0.92,
+    "composition": {
+      "W": 75.0,
+      "C": 0.5,
+      "Si": 1.0,
+      "Fe": 23.0
+    }
+  },
+  {
+    "id": "pure_cu",
+    "name": "Pure Copper Scrap / Cathode (Cu 99.9)",
+    "description": "Corrosion resistance enhancer for 904L, 204Cu, precipitation hardening 17-4PH.",
+    "cost_per_kg": 9.20,
+    "recovery": 0.95,
+    "composition": {
+      "Cu": 99.9
+    }
+  },
+  {
+    "id": "pure_al",
+    "name": "Pure Aluminum Notch Bar (Al 99.7)",
+    "description": "Deoxidation and precipitation hardening agent (17-7PH, Nitriding steels).",
+    "cost_per_kg": 2.60,
+    "recovery": 0.60,
+    "composition": {
+      "Al": 99.7
+    }
+  },
+  {
+    "id": "recarburizer",
+    "name": "Recarburizer (Graphite Granules)",
+    "description": "Pure carbon addition for carbon adjustment.",
+    "cost_per_kg": 0.95,
+    "recovery": 0.80,
+    "composition": {
+      "C": 99.0
+    }
+  },
+  {
+    "id": "dilution_scrap",
+    "name": "Ultra-Low Carbon Mild Steel Scrap / Iron",
+    "description": "Used as dilution base to reduce excess concentration of unwanted elements.",
+    "cost_per_kg": 0.45,
+    "recovery": 0.98,
+    "composition": {
+      "Fe": 99.3,
+      "C": 0.03,
+      "Mn": 0.25,
+      "Si": 0.10,
+      "P": 0.015,
+      "S": 0.015
+    }
+  },
+  {
+    "id": "nitrided_fe_cr",
+    "name": "Nitrided Ferro-Chrome",
+    "description": "Nitrogen alloying for austenitic & duplex steels without gas porosity.",
+    "cost_per_kg": 4.50,
+    "recovery": 0.75,
+    "composition": {
+      "N": 5.0,
+      "Cr": 60.0,
+      "C": 0.1,
+      "Fe": 34.5
+    }
+  }
+]

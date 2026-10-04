@@ -1,0 +1,62 @@
+/* style.css: Custom Foundry Theme Enhancements and Print Media Queries */
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #020617;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Tab active state */
+.tab-btn.active {
+  background-color: #f59e0b;
+  color: #020617;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+}
+
+/* Glow effects */
+.glow-amber {
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
+}
+
+/* Print styling for shop floor heat sheets */
+@media print {
+  body {
+    background-color: white !important;
+    color: black !important;
+  }
+  header, footer, #tab-btn-optimizer, #tab-btn-recommender, #tab-btn-materials, #btn-calculate, #preset-menu, button {
+    display: none !important;
+  }
+  .bg-slate-900, .bg-slate-950, .bg-slate-800 {
+    background-color: white !important;
+    color: black !important;
+    border-color: #cbd5e1 !important;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  th, td {
+    border: 1px solid #94a3b8 !important;
+    color: black !important;
+    padding: 6px 8px !important;
+  }
+  #results-summary-cards {
+    display: flex;
+    gap: 12px;
+  }
+  #results-summary-cards > div {
+    border: 1px solid #94a3b8;
+    padding: 8px;
+  }
+}
