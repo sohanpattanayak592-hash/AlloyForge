@@ -18,8 +18,27 @@ const TRACKED_ELEMENTS = [
   { symbol: "S", name: "Sulfur", default: 0.015, step: 0.005 }
 ];
 
+const DEFAULT_ADDITIVES = [
+  { id: "fe_cr_lc", name: "Low-Carbon Ferro-Chrome (LC FeCr)", cost_per_kg: 2.80, recovery: 0.92, composition: { Cr: 70.0, C: 0.05, Si: 1.0, Fe: 28.5 } },
+  { id: "fe_cr_hc", name: "High-Carbon Ferro-Chrome (HC FeCr)", cost_per_kg: 1.60, recovery: 0.90, composition: { Cr: 65.0, C: 7.0, Si: 2.0, Fe: 25.5 } },
+  { id: "fe_mn_lc", name: "Low-Carbon Ferro-Manganese (LC FeMn)", cost_per_kg: 2.10, recovery: 0.88, composition: { Mn: 80.0, C: 0.5, Si: 1.0, Fe: 18.0 } },
+  { id: "fe_mn_hc", name: "High-Carbon Ferro-Manganese (HC FeMn)", cost_per_kg: 1.30, recovery: 0.85, composition: { Mn: 75.0, C: 7.0, Si: 1.5, Fe: 16.0 } },
+  { id: "pure_ni", name: "Pure Electrolytic Nickel Briquettes / Cathodes", cost_per_kg: 16.50, recovery: 0.98, composition: { Ni: 99.8, Fe: 0.1 } },
+  { id: "fe_mo", name: "Ferro-Molybdenum (FeMo 60)", cost_per_kg: 42.00, recovery: 0.95, composition: { Mo: 60.0, C: 0.1, Si: 1.5, Fe: 38.0 } },
+  { id: "fe_si_75", name: "Ferro-Silicon (FeSi 75)", cost_per_kg: 1.50, recovery: 0.85, composition: { Si: 75.0, Al: 1.2, Fe: 23.5 } },
+  { id: "fe_v", name: "Ferro-Vanadium (FeV 80)", cost_per_kg: 32.00, recovery: 0.90, composition: { V: 78.0, Si: 1.5, Al: 1.5, Fe: 18.5 } },
+  { id: "fe_nb", name: "Ferro-Niobium (FeNb 65)", cost_per_kg: 48.00, recovery: 0.88, composition: { Nb: 65.0, Ta: 0.5, Si: 2.0, Fe: 32.0 } },
+  { id: "fe_ti", name: "Ferro-Titanium (FeTi 70)", cost_per_kg: 9.50, recovery: 0.65, composition: { Ti: 70.0, Al: 4.0, Si: 2.5, Fe: 23.0 } },
+  { id: "fe_w", name: "Ferro-Tungsten (FeW 75)", cost_per_kg: 38.00, recovery: 0.92, composition: { W: 75.0, C: 0.5, Si: 1.0, Fe: 23.0 } },
+  { id: "pure_cu", name: "Pure Copper Scrap / Cathode (Cu 99.9)", cost_per_kg: 9.20, recovery: 0.95, composition: { Cu: 99.9 } },
+  { id: "pure_al", name: "Pure Aluminum Notch Bar (Al 99.7)", cost_per_kg: 2.60, recovery: 0.60, composition: { Al: 99.7 } },
+  { id: "recarburizer", name: "Recarburizer (Graphite Granules)", cost_per_kg: 0.95, recovery: 0.80, composition: { C: 99.0 } },
+  { id: "dilution_scrap", name: "Ultra-Low Carbon Mild Steel Scrap / Iron", cost_per_kg: 0.45, recovery: 0.98, composition: { Fe: 99.3, C: 0.03, Mn: 0.25, Si: 0.10, P: 0.015, S: 0.015 } },
+  { id: "nitrided_fe_cr", name: "Nitrided Ferro-Chrome", cost_per_kg: 4.50, recovery: 0.75, composition: { N: 5.0, Cr: 60.0, C: 0.1, Fe: 34.5 } }
+];
+
 let allGrades = [];
-let allAdditives = [];
+let allAdditives = [...DEFAULT_ADDITIVES];
 let selectedGrade = null;
 let compositionChart = null;
 
@@ -520,20 +539,58 @@ function solveChargeInBrowser(initialMass, initialComp, targetGrade, recoveries)
   };
 }
 
-// Run Optimization
+// Helper to scroll down to the Results Dashboard
+function scrollToResults() {
+  const el = document.getElementById("results-section");
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+// Run Optimization with visible tactile feedback and auto-scroll
 async function runOptimization() {
-  if (!selectedGrade) return;
-
   const btn = document.getElementById("btn-calculate");
-  btn.disabled = true;
-  btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i><span>Calculating Optimal Charge...</span>`;
-  lucide.createIcons();
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i><span>Calculating Optimal Charge...</span>`;
+    if (window.lucide) lucide.createIcons();
+  }
 
-  const initialMass = parseFloat(document.getElementById("input-mass").value || 1000);
+  // Ensure selectedGrade is active (auto-resolve from input text if unselected)
+  if (!selectedGrade) {
+    const inputVal = document.getElementById("grade-search")?.value?.trim() || "";
+    if (inputVal && allGrades.length > 0) {
+      selectedGrade = allGrades.find(g => 
+        g.grade.toLowerCase() === inputVal.toLowerCase() ||
+        g.id.toLowerCase() === inputVal.toLowerCase() ||
+        g.grade.toLowerCase().includes(inputVal.toLowerCase()) ||
+        (g.equivalents && g.equivalents.toLowerCase().includes(inputVal.toLowerCase()))
+      );
+    }
+    if (!selectedGrade && allGrades.length > 0) {
+      selectedGrade = allGrades[0];
+    }
+  }
+
+  if (!selectedGrade) {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `<i data-lucide="calculator" class="w-6 h-6 stroke-[2.5]"></i><span>Calculate Optimized Charge</span>`;
+      if (window.lucide) lucide.createIcons();
+    }
+    alert("Please select a target alloy grade first.");
+    return;
+  }
+
+  const initialMass = parseFloat(document.getElementById("input-mass")?.value || 1000);
   const composition = getCurrentOreComposition();
   const recoveries = calculateMLRecoveries(1620, 1.8, 20);
 
+  // Short delay so the button provides positive tactile feedback
+  await new Promise(r => setTimeout(r, 160));
+
   try {
+    let result = null;
     let res = await fetch("/api/optimize", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -547,21 +604,44 @@ async function runOptimization() {
       })
     }).catch(() => null);
 
-    let result;
     if (res && res.ok) {
       result = await res.json();
     } else {
       result = solveChargeInBrowser(initialMass, composition, selectedGrade, recoveries);
     }
+
     renderOptimizationResults(result);
+
+    // Update feedback banner directly below the calculate button
+    const feedbackBanner = document.getElementById("btn-feedback-banner");
+    const feedbackText = document.getElementById("btn-feedback-text");
+    if (feedbackBanner && feedbackText) {
+      const addedKg = result.total_added_mass_kg || 0;
+      const cost = result.total_cost || 0;
+      feedbackText.innerHTML = `✓ <strong>${result.target_grade?.grade || selectedGrade.grade}:</strong> Calculated <strong>${addedKg} kg</strong> additions ($${cost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`;
+      feedbackBanner.classList.remove("hidden");
+    }
+
+    // Smoothly scroll down to the Results Dashboard so the user sees the recipe
+    scrollToResults();
+
+    // Pulse highlight the primary result card
+    const resultsSec = document.getElementById("results-section");
+    if (resultsSec) {
+      resultsSec.classList.add("ring-2", "ring-amber-500", "rounded-2xl");
+      setTimeout(() => resultsSec.classList.remove("ring-2", "ring-amber-500"), 1600);
+    }
   } catch (err) {
     console.error("Optimization failed, falling back to browser solver:", err);
     const result = solveChargeInBrowser(initialMass, composition, selectedGrade, recoveries);
     renderOptimizationResults(result);
+    scrollToResults();
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = `<i data-lucide="calculator" class="w-6 h-6 stroke-[2.5]"></i><span>Calculate Optimized Charge</span>`;
-    lucide.createIcons();
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `<i data-lucide="calculator" class="w-6 h-6 stroke-[2.5]"></i><span>Calculate Optimized Charge</span>`;
+      if (window.lucide) lucide.createIcons();
+    }
   }
 }
 

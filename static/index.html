@@ -164,13 +164,25 @@
       </div>
     </section>
 
-    <!-- 3. Prominent Single Call-To-Action Button -->
-    <section>
+    <!-- 3. Prominent Single Call-To-Action Button with Visual Feedback -->
+    <section class="space-y-3">
       <button onclick="runOptimization()" id="btn-calculate"
         class="w-full py-4 sm:py-4.5 bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-black text-lg rounded-2xl shadow-lg shadow-amber-500/20 flex items-center justify-center space-x-3 transition transform active:scale-[0.99] cursor-pointer">
         <i data-lucide="calculator" class="w-6 h-6 stroke-[2.5]"></i>
         <span>Calculate Optimized Charge</span>
       </button>
+
+      <!-- Instant Visual Feedback Toast / Banner -->
+      <div id="btn-feedback-banner" class="hidden rounded-xl p-3.5 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-semibold flex items-center justify-between transition-all">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+          <span id="btn-feedback-text">Charge optimized successfully! Total additions calculated.</span>
+        </div>
+        <button onclick="scrollToResults()" class="text-amber-400 hover:text-amber-300 font-bold underline text-xs ml-3 flex items-center space-x-1 whitespace-nowrap">
+          <span>Jump to Recipe</span>
+          <i data-lucide="arrow-down" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
     </section>
 
     <!-- 4. Streamlined Results Dashboard (The Output) -->
