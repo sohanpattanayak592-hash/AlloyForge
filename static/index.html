@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AlloyForge - Intelligent Foundry Charge & Alloying Optimizer</title>
+  <title>ScrapSmart — Foundry Charge & Trim Optimizer</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js CDN -->
@@ -19,14 +19,12 @@
       theme: {
         extend: {
           colors: {
-            foundry: {
+            brand: {
               50: '#f8fafc',
-              100: '#f1f5f9',
-              800: '#1e293b',
+              500: '#f59e0b',
+              600: '#d97706',
               900: '#0f172a',
-              950: '#020617',
-              accent: '#f59e0b',
-              glow: '#ea580c'
+              950: '#090d16'
             }
           }
         }
@@ -34,411 +32,259 @@
     }
   </script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-amber-500 selection:text-slate-950">
 
-  <!-- Header -->
-  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+  <!-- Minimalist Clean Header -->
+  <header class="border-b border-slate-800/80 bg-slate-900/95 sticky top-0 z-40 backdrop-blur-sm">
+    <div class="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 to-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/20">
-          <i data-lucide="flame" class="w-6 h-6 text-white"></i>
+        <div class="w-9 h-9 rounded-lg bg-amber-500 flex items-center justify-center text-slate-950 shadow-md shadow-amber-500/20">
+          <i data-lucide="layers" class="w-5 h-5 stroke-[2.5]"></i>
         </div>
         <div>
-          <div class="flex items-center space-x-2">
-            <h1 class="text-xl font-bold tracking-tight text-white">AlloyForge</h1>
-            <span class="px-2 py-0.5 text-xs rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-medium">Foundry AI 2.0</span>
-          </div>
-          <p class="text-xs text-slate-400">Precision Alloy Charge Calculator & 350+ Steel Grade Reference</p>
+          <h1 class="text-xl font-bold tracking-tight text-white leading-none">ScrapSmart</h1>
+          <p class="text-[12px] text-slate-400 font-medium mt-0.5">Foundry Charge & Trim Optimizer</p>
         </div>
       </div>
 
-      <!-- Navigation Tabs -->
-      <nav class="flex space-x-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700/60 text-sm">
-        <button id="tab-btn-optimizer" onclick="switchTab('optimizer')" class="tab-btn active px-4 py-1.5 rounded-lg font-medium transition flex items-center space-x-2 bg-amber-500 text-slate-950 shadow">
-          <i data-lucide="calculator" class="w-4 h-4"></i>
-          <span>Trim Optimizer</span>
+      <div class="flex items-center space-x-3">
+        <button onclick="window.print()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-lg border border-slate-700 flex items-center space-x-2 transition font-medium">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span>Print Heat Sheet</span>
         </button>
-        <button id="tab-btn-recommender" onclick="switchTab('recommender')" class="tab-btn px-4 py-1.5 rounded-lg font-medium transition flex items-center space-x-2 text-slate-300 hover:text-white">
-          <i data-lucide="compass" class="w-4 h-4"></i>
-          <span>Grade Recommender</span>
-        </button>
-        <button id="tab-btn-materials" onclick="switchTab('materials')" class="tab-btn px-4 py-1.5 rounded-lg font-medium transition flex items-center space-x-2 text-slate-300 hover:text-white">
-          <i data-lucide="layers" class="w-4 h-4"></i>
-          <span>Ferroalloys & Yield ML</span>
-        </button>
-      </nav>
+      </div>
     </div>
   </header>
 
-  <!-- Main Content Area -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
+  <!-- Main Container -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-6 space-y-6">
 
-    <!-- TAB 1: TRIM OPTIMIZER -->
-    <section id="tab-optimizer" class="space-y-6">
-      
-      <!-- Top Target Grade Selector & Specification Card -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
-          
-          <!-- Grade Search & Family Filter -->
-          <div class="lg:col-span-1 space-y-3">
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Select Target Alloy Grade</label>
-            <div class="relative">
-              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
-              <input type="text" id="grade-search" placeholder="Search 351 grades (e.g. 316L, Inconel 718, D2)..." 
-                class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition"
-                oninput="filterGradesDropdown()">
-              <div id="grade-dropdown-list" class="hidden absolute top-full left-0 right-0 mt-1 max-h-60 overflow-y-auto bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-40 divide-y divide-slate-800">
-                <!-- Dropdown items inserted dynamically -->
-              </div>
-            </div>
+    <!-- 1. Charge Setup & Grade Selection -->
+    <section class="bg-slate-900 border border-slate-800/90 rounded-2xl p-5 sm:p-6 shadow-sm">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
+        
+        <!-- Target Grade Search & Dropdown -->
+        <div class="md:col-span-7 space-y-2 relative">
+          <div class="flex justify-between items-center">
+            <label for="grade-search" class="text-xs font-bold uppercase tracking-wider text-slate-300">
+              Target Alloy Grade
+            </label>
+            <span id="active-grade-family" class="text-xs text-amber-400 font-semibold"></span>
+          </div>
 
-            <!-- Family Pills -->
-            <div class="flex flex-wrap gap-1.5 pt-1" id="family-filter-container">
-              <!-- Families pills dynamically populated -->
+          <div class="relative">
+            <i data-lucide="search" class="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none"></i>
+            <input type="text" id="grade-search" placeholder="Type grade (e.g. AISI 316 L, 304, Inconel 718, D2)..." 
+              class="w-full bg-slate-950 border border-slate-700 hover:border-slate-600 focus:border-amber-500 rounded-xl pl-11 pr-4 py-3 text-base text-white font-medium outline-none transition"
+              oninput="filterGradesDropdown()" onfocus="filterGradesDropdown()">
+            
+            <div id="grade-dropdown-list" class="hidden absolute top-full left-0 right-0 mt-1 max-h-64 overflow-y-auto bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-50 divide-y divide-slate-800">
+              <!-- Dropdown items inserted dynamically -->
             </div>
           </div>
 
-          <!-- Active Grade Info Badge -->
-          <div class="lg:col-span-2 bg-slate-950/60 border border-slate-800 rounded-xl p-4 flex flex-col justify-between">
-            <div class="flex items-start justify-between">
-              <div>
-                <div class="flex items-center space-x-3">
-                  <h2 id="active-grade-name" class="text-2xl font-black text-amber-400 tracking-tight">AISI 316 L</h2>
-                  <span id="active-grade-family" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Austenitic</span>
-                </div>
-                <p id="active-grade-equivalents" class="text-xs text-slate-400 mt-1">Cross-Standard Equivalents: EN 1.4404 · S31603 · SUS 316L</p>
-              </div>
-              <div class="text-right">
-                <span class="text-xs text-slate-400 block">Specification Standard</span>
-                <span id="active-grade-spec-count" class="text-sm font-semibold text-slate-200">ASTM A240 / EN 10088</span>
-              </div>
-            </div>
-
-            <!-- Grade Target Chemistry Badges -->
-            <div class="mt-4 pt-3 border-t border-slate-800/80">
-              <span class="text-xs font-medium text-slate-400 uppercase tracking-wider block mb-2">Required Composition Specification (% by mass):</span>
-              <div id="active-grade-elements-pills" class="flex flex-wrap gap-2">
-                <!-- Badges dynamically inserted -->
-              </div>
-            </div>
-          </div>
+          <!-- Active Grade Subtext -->
+          <p id="active-grade-equivalents" class="text-xs text-slate-400 truncate">
+            Selected: <span class="text-slate-200 font-mono font-medium">AISI 316 L (EN 1.4404 · S31603)</span>
+          </p>
         </div>
-      </div>
 
-      <!-- Main Input Grid: Ore / Scrap Analysis vs Additives -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-        <!-- Left Column: Available Ore / Scrap Heat Parameters (5 Cols) -->
-        <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-5">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-            <div class="flex items-center space-x-2">
-              <i data-lucide="scale" class="w-5 h-5 text-amber-500"></i>
-              <h3 class="font-bold text-slate-100">Furnace & Available Ore/Scrap</h3>
-            </div>
-            <!-- Preset Ore Buttons -->
-            <div class="relative">
-              <button onclick="togglePresetMenu()" class="text-xs bg-slate-800 hover:bg-slate-700 text-amber-400 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-1.5 transition">
-                <i data-lucide="bookmark" class="w-3.5 h-3.5"></i>
-                <span>Load Sample Scrap</span>
-              </button>
-              <div id="preset-menu" class="hidden absolute right-0 mt-1 w-56 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-30 divide-y divide-slate-800 text-xs">
-                <button onclick="loadOrePreset('mild_scrap')" class="w-full text-left px-3 py-2 hover:bg-slate-800 text-slate-200">Mild Steel / Ore Scrap</button>
-                <button onclick="loadOrePreset('ss304_scrap')" class="w-full text-left px-3 py-2 hover:bg-slate-800 text-slate-200">Stainless Return Scrap (18/8)</button>
-                <button onclick="loadOrePreset('low_alloy')" class="w-full text-left px-3 py-2 hover:bg-slate-800 text-slate-200">Low Alloy Chrome-Moly Scrap</button>
-                <button onclick="loadOrePreset('nickel_pig')" class="w-full text-left px-3 py-2 hover:bg-slate-800 text-slate-200">Nickel Pig Iron Melt</button>
-              </div>
-            </div>
+        <!-- Melt Batch Mass Input (Large touch target) -->
+        <div class="md:col-span-3 space-y-2">
+          <label for="input-mass" class="text-xs font-bold uppercase tracking-wider text-slate-300">
+            Furnace Melt Mass (kg)
+          </label>
+          <div class="relative">
+            <input type="number" id="input-mass" value="1000" min="10" step="50"
+              class="w-full bg-slate-950 border border-slate-700 hover:border-slate-600 focus:border-amber-500 rounded-xl px-4 py-3 text-lg font-bold text-white font-mono outline-none transition">
+            <span class="absolute right-3.5 top-3.5 text-xs text-slate-400 font-bold font-mono">KG</span>
           </div>
+          <p class="text-xs text-slate-500">Available base heat weight</p>
+        </div>
 
-          <!-- Furnace Operational Parameters -->
-          <div class="grid grid-cols-3 gap-3">
-            <div>
-              <label class="block text-xs font-semibold text-slate-400 mb-1">Melt Mass (kg)</label>
-              <input type="number" id="input-mass" value="1000" min="1" step="10"
-                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono focus:border-amber-500 outline-none">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-400 mb-1">Furnace Type</label>
-              <select id="input-furnace-type" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-sm text-white focus:border-amber-500 outline-none">
-                <option value="Induction">Induction Furnace</option>
-                <option value="EAF">Electric Arc (EAF)</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-400 mb-1">Bath Temp (°C)</label>
-              <input type="number" id="input-temp" value="1620" min="1450" max="1750" step="5"
-                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono focus:border-amber-500 outline-none">
-            </div>
-          </div>
-
-          <!-- Elemental Analysis Input Grid -->
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Spectrometer Analysis of Current Ore / Melt (% mass)</span>
-              <button onclick="clearOreComposition()" class="text-xs text-slate-400 hover:text-slate-200 underline">Reset to 0%</button>
-            </div>
-
-            <div class="grid grid-cols-3 sm:grid-cols-4 gap-2.5" id="elements-input-grid">
-              <!-- Element inputs inserted dynamically: C, Mn, Si, Cr, Ni, Mo, Cu, Al, Ti, V, W, Co, Nb, P, S -->
-            </div>
-          </div>
-
-          <!-- Action Button -->
-          <button onclick="runOptimization()" id="btn-calculate"
-            class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-bold rounded-xl shadow-lg shadow-orange-500/25 flex items-center justify-center space-x-2 transition transform active:scale-[0.99]">
-            <i data-lucide="zap" class="w-5 h-5"></i>
-            <span>Calculate Required Additions & Trim</span>
+        <!-- Reset Button -->
+        <div class="md:col-span-2">
+          <button onclick="clearOreComposition()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white py-3 rounded-xl border border-slate-700 text-xs font-semibold transition flex items-center justify-center space-x-1.5">
+            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+            <span>Reset XRF</span>
           </button>
         </div>
 
-        <!-- Right Column: Optimization Output & Actionable Recipe (7 Cols) -->
-        <div class="lg:col-span-7 space-y-6">
-
-          <!-- Results Summary Cards -->
-          <div id="results-summary-cards" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5">
-              <span class="text-xs text-slate-400 block">Total Additions</span>
-              <span id="res-added-mass" class="text-xl font-black text-amber-400 font-mono">-- kg</span>
-              <span id="res-batch-mass" class="text-xs text-slate-400 block mt-0.5">Final: -- kg</span>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5">
-              <span class="text-xs text-slate-400 block">Total Alloying Cost</span>
-              <span id="res-total-cost" class="text-xl font-black text-emerald-400 font-mono">$--</span>
-              <span id="res-cost-per-ton" class="text-xs text-slate-400 block mt-0.5">-- / ton</span>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5">
-              <span class="text-xs text-slate-400 block">Grade Feasibility</span>
-              <span id="res-status-badge" class="text-base font-bold text-emerald-400 flex items-center space-x-1 mt-1">
-                <i data-lucide="check-circle-2" class="w-4 h-4"></i>
-                <span>Ready</span>
-              </span>
-              <span class="text-xs text-slate-400 block mt-0.5">Linear Solved</span>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5">
-              <span class="text-xs text-slate-400 block">Furnace Burn-off</span>
-              <span id="res-avg-recovery" class="text-xl font-black text-cyan-400 font-mono">ML Active</span>
-              <span class="text-xs text-slate-400 block mt-0.5">Yield Compensated</span>
-            </div>
-          </div>
-
-          <!-- Alert / Excess Element Banner (Shown if excess needs dilution or O2 blowing) -->
-          <div id="excess-alert-banner" class="hidden bg-rose-500/10 border border-rose-500/30 rounded-xl p-4">
-            <div class="flex items-start space-x-3">
-              <i data-lucide="alert-triangle" class="w-5 h-5 text-rose-400 flex-shrink-0 mt-0.5"></i>
-              <div class="text-sm space-y-1">
-                <h4 class="font-bold text-rose-300">Excess Chemistry Detected (Elements Above Allowed Maximum)</h4>
-                <p id="excess-alert-text" class="text-xs text-rose-200/90 leading-relaxed"></p>
-                <div id="oxygen-blowing-recommendation" class="pt-2 text-xs font-mono text-amber-300"></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Additions Recipe Table -->
-          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-              <div class="flex items-center space-x-2">
-                <i data-lucide="clipboard-list" class="w-5 h-5 text-amber-500"></i>
-                <h3 class="font-bold text-slate-100">Step-by-Step Addition Recipe for Furnace Operators</h3>
-              </div>
-              <button onclick="window.print()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-1.5 transition">
-                <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-                <span>Print Heat Sheet</span>
-              </button>
-            </div>
-
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-sm">
-                <thead>
-                  <tr class="text-xs uppercase text-slate-400 border-b border-slate-800 bg-slate-950/40">
-                    <th class="py-2.5 px-3">Ferroalloy / Raw Material</th>
-                    <th class="py-2.5 px-3 text-right">Mass to Add (kg)</th>
-                    <th class="py-2.5 px-3 text-right">% of Heat</th>
-                    <th class="py-2.5 px-3 text-right">Unit Price</th>
-                    <th class="py-2.5 px-3 text-right">Cost ($)</th>
-                  </tr>
-                </thead>
-                <tbody id="recipe-table-body" class="divide-y divide-slate-800/60 font-mono text-xs">
-                  <tr>
-                    <td colspan="5" class="py-8 text-center text-slate-500 font-sans">
-                      Select target grade and click "Calculate Required Additions & Trim" to generate the heat recipe.
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Verification Table & Spec Compliance -->
-          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-              <div class="flex items-center space-x-2">
-                <i data-lucide="check-check" class="w-5 h-5 text-emerald-500"></i>
-                <h3 class="font-bold text-slate-100">Chemical Composition Verification & Spec Window</h3>
-              </div>
-              <span class="text-xs text-slate-400">Post-Alloying Expected Chemistry</span>
-            </div>
-
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-sm">
-                <thead>
-                  <tr class="text-xs uppercase text-slate-400 border-b border-slate-800 bg-slate-950/40">
-                    <th class="py-2 px-3">Element</th>
-                    <th class="py-2 px-3 text-right">Initial Ore %</th>
-                    <th class="py-2 px-3 text-right">Predicted Final %</th>
-                    <th class="py-2 px-3 text-center">Allowable Range</th>
-                    <th class="py-2 px-3 text-center">Status</th>
-                  </tr>
-                </thead>
-                <tbody id="verification-table-body" class="divide-y divide-slate-800/60 font-mono text-xs">
-                  <!-- Rows populated dynamically -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Interactive Visualization Chart -->
-          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-            <h3 class="font-bold text-slate-100 mb-3 text-sm flex items-center space-x-2">
-              <i data-lucide="bar-chart-3" class="w-4 h-4 text-cyan-400"></i>
-              <span>Initial vs Final Chemistry vs Grade Tolerance Window</span>
-            </h3>
-            <div class="h-64">
-              <canvas id="compositionChart"></canvas>
-            </div>
-          </div>
-
-        </div>
       </div>
     </section>
 
-    <!-- TAB 2: GRADE RECOMMENDER ("WHAT CAN I MAKE?") -->
-    <section id="tab-recommender" class="hidden space-y-6">
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-        <div class="max-w-3xl">
-          <h2 class="text-xl font-bold text-white flex items-center space-x-2">
-            <i data-lucide="sparkles" class="w-5 h-5 text-amber-400"></i>
-            <span>Smart Grade Compatibility & Opportunity Recommender</span>
+    <!-- 2. Clean XRF Spectrometer Composition Input Grid -->
+    <section class="bg-slate-900 border border-slate-800/90 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+        <div>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-200 flex items-center space-x-2">
+            <i data-lucide="activity" class="w-4 h-4 text-amber-500"></i>
+            <span>Current Melt XRF Analysis (% by mass)</span>
           </h2>
-          <p class="text-sm text-slate-400 mt-1">
-            Have a pile of scrap or an unknown ore analysis? This machine learning similarity engine evaluates your current chemistry against all 351 steel and alloy grades to recommend the most cost-effective and metallurgical-compatible grades to manufacture with minimal additions.
-          </p>
+          <p class="text-xs text-slate-400">Enter spectrometer readings from current scrap or bath sample</p>
         </div>
 
-        <div class="mt-6 flex flex-wrap gap-4 items-center">
-          <div class="flex items-center space-x-2 text-sm">
-            <span class="text-slate-400">Filter Family:</span>
-            <select id="rec-family-filter" onchange="runRecommendation()" class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-white focus:border-amber-500 outline-none">
-              <option value="All">All 8 Families (351 grades)</option>
-              <option value="Austenitic">Austenitic Stainless</option>
-              <option value="Duplex">Duplex & Super Duplex</option>
-              <option value="Martensitic">Martensitic Stainless</option>
-              <option value="Ferritic">Ferritic Stainless</option>
-              <option value="Precipitation Hardening">Precipitation Hardening (PH)</option>
-              <option value="Nickel Alloy">Nickel Alloys & Superalloys</option>
-              <option value="Tool Steel">Tool Steels & HSS</option>
-              <option value="Carbon Steel (partial)">Carbon Steels</option>
-            </select>
-          </div>
-          <button onclick="runRecommendation()" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm transition flex items-center space-x-1.5">
-            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-            <span>Scan 351 Grades For Matches</span>
-          </button>
+        <!-- Fast Preset Selectors -->
+        <div class="flex items-center space-x-2">
+          <span class="text-xs text-slate-400 font-medium">Quick Preset:</span>
+          <button onclick="loadOrePreset('mild_scrap')" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 font-medium transition">Mild Steel</button>
+          <button onclick="loadOrePreset('ss304_scrap')" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 font-medium transition">304 Scrap</button>
+          <button onclick="loadOrePreset('low_alloy')" class="px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 font-medium transition">Cr-Mo Scrap</button>
         </div>
+      </div>
 
-        <!-- Recommendations Grid -->
-        <div id="recommendations-cards-grid" class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <!-- Cards populated dynamically -->
-        </div>
+      <!-- Large, Touch-Friendly Grid (Optimized for Foundry Floor Tablet/Mobile Use) -->
+      <div id="elements-input-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 pt-1">
+        <!-- Rendered by app.js: C, Mn, Si, Cr, Ni, Mo, Cu, Al, Ti, V, W, Co, Nb, P, S -->
       </div>
     </section>
 
-    <!-- TAB 3: FERROALLOYS & ML YIELD PREDICTOR -->
-    <section id="tab-materials" class="hidden space-y-6">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- 3. Prominent Single Call-To-Action Button -->
+    <section>
+      <button onclick="runOptimization()" id="btn-calculate"
+        class="w-full py-4 sm:py-4.5 bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-black text-lg rounded-2xl shadow-lg shadow-amber-500/20 flex items-center justify-center space-x-3 transition transform active:scale-[0.99] cursor-pointer">
+        <i data-lucide="calculator" class="w-6 h-6 stroke-[2.5]"></i>
+        <span>Calculate Optimized Charge</span>
+      </button>
+    </section>
 
-        <!-- Left: ML Yield Predictor Simulator (5 cols) -->
-        <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-          <div class="flex items-center space-x-2 border-b border-slate-800 pb-3">
-            <i data-lucide="cpu" class="w-5 h-5 text-cyan-400"></i>
-            <h3 class="font-bold text-slate-100">Machine Learning Element Oxidation & Recovery Model</h3>
-          </div>
-          <p class="text-xs text-slate-400 leading-relaxed">
-            Active elements burn off into slag during melting. This trained Random Forest model predicts elemental recoveries dynamically based on thermodynamics, bath temperature, slag basicity, and furnace type.
-          </p>
+    <!-- 4. Streamlined Results Dashboard (The Output) -->
+    <section id="results-section" class="space-y-6">
 
-          <div class="space-y-3 text-xs">
-            <div>
-              <div class="flex justify-between text-slate-300 mb-1">
-                <span>Bath Temperature:</span>
-                <span id="slider-temp-val" class="font-mono text-amber-400 font-bold">1620 °C</span>
-              </div>
-              <input type="range" id="slider-temp" min="1500" max="1720" value="1620" step="5" class="w-full accent-amber-500" oninput="updateMLYields()">
+      <!-- Primary Result: Target Grade & Total Addition Cost Front-and-Center -->
+      <div class="bg-slate-900 border border-slate-800/90 rounded-2xl p-6 shadow-sm">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-center">
+          
+          <!-- Matched Alloy Grade -->
+          <div class="sm:col-span-2 border-b sm:border-b-0 sm:border-r border-slate-800 pb-4 sm:pb-0 sm:pr-6">
+            <span class="text-xs uppercase font-bold tracking-wider text-slate-400 block mb-1">Target Alloy Grade</span>
+            <div class="flex items-baseline space-x-3">
+              <h3 id="res-target-grade-name" class="text-3xl sm:text-4xl font-black text-white tracking-tight">AISI 316 L</h3>
+              <span id="res-target-grade-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">Within Spec</span>
             </div>
-
-            <div>
-              <div class="flex justify-between text-slate-300 mb-1">
-                <span>Slag Basicity Ratio (CaO / SiO2):</span>
-                <span id="slider-slag-val" class="font-mono text-cyan-400 font-bold">1.8</span>
-              </div>
-              <input type="range" id="slider-slag" min="1.0" max="2.6" value="1.8" step="0.1" class="w-full accent-cyan-500" oninput="updateMLYields()">
-            </div>
-
-            <div>
-              <div class="flex justify-between text-slate-300 mb-1">
-                <span>Holding / Refining Time:</span>
-                <span id="slider-time-val" class="font-mono text-emerald-400 font-bold">20 min</span>
-              </div>
-              <input type="range" id="slider-time" min="5" max="60" value="20" step="1" class="w-full accent-emerald-500" oninput="updateMLYields()">
-            </div>
+            <p id="res-target-grade-specs" class="text-xs text-slate-400 mt-1 truncate">
+              Standard: ASTM A240 / EN 10088-3
+            </p>
           </div>
 
-          <!-- Dynamic Predicted Yield Cards -->
-          <div class="pt-3 border-t border-slate-800">
-            <span class="text-xs uppercase font-semibold text-slate-400 tracking-wider block mb-2">Predicted Recovery Yield Rates:</span>
-            <div id="ml-yield-cards" class="grid grid-cols-3 gap-2 text-center">
-              <!-- Dynamically populated -->
-            </div>
+          <!-- Total Addition Cost -->
+          <div class="border-b sm:border-b-0 lg:border-r border-slate-800 pb-4 sm:pb-0 lg:pr-6">
+            <span class="text-xs uppercase font-bold tracking-wider text-slate-400 block mb-1">Total Addition Cost</span>
+            <div id="res-total-cost" class="text-3xl sm:text-4xl font-black text-emerald-400 font-mono tracking-tight">$0.00</div>
+            <p id="res-cost-per-ton" class="text-xs text-slate-400 mt-1 font-mono">$0.00 / ton alloy</p>
           </div>
+
+          <!-- Total Additions & Final Batch Weight -->
+          <div>
+            <span class="text-xs uppercase font-bold tracking-wider text-slate-400 block mb-1">Additions & Tap Weight</span>
+            <div id="res-added-mass" class="text-2xl sm:text-3xl font-black text-amber-400 font-mono tracking-tight">0.0 kg</div>
+            <p id="res-batch-mass" class="text-xs text-slate-400 mt-1 font-mono">Final Heat: 1,000 kg</p>
+          </div>
+
         </div>
-
-        <!-- Right: Raw Materials & Ferroalloys Catalog (7 cols) -->
-        <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-            <div class="flex items-center space-x-2">
-              <i data-lucide="boxes" class="w-5 h-5 text-amber-500"></i>
-              <h3 class="font-bold text-slate-100">Standard Foundry Ferroalloys & Master Alloys Library</h3>
-            </div>
-            <span class="text-xs text-slate-400">16 Pre-configured Additives</span>
-          </div>
-
-          <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
-            <table class="w-full text-left text-sm">
-              <thead class="sticky top-0 bg-slate-950">
-                <tr class="text-xs uppercase text-slate-400 border-b border-slate-800">
-                  <th class="py-2 px-3">Additive Name</th>
-                  <th class="py-2 px-3">Primary Composition</th>
-                  <th class="py-2 px-3 text-right">Market Cost</th>
-                  <th class="py-2 px-3 text-center">Nominal Yield</th>
-                </tr>
-              </thead>
-              <tbody id="materials-catalog-body" class="divide-y divide-slate-800/60 font-mono text-xs">
-                <!-- Dynamically populated -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-
       </div>
+
+      <!-- Excess Elements Alert (Decarburization / Dilution Banner) -->
+      <div id="excess-alert-banner" class="hidden bg-rose-950/40 border border-rose-500/40 rounded-2xl p-5">
+        <div class="flex items-start space-x-3.5">
+          <div class="p-2 bg-rose-500/10 rounded-xl text-rose-400 flex-shrink-0 mt-0.5">
+            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+          </div>
+          <div class="space-y-1.5 text-sm">
+            <h4 class="font-bold text-rose-300">Chemistry Excess Warning: Elements Exceed Grade Ceiling</h4>
+            <div id="excess-alert-text" class="text-xs text-rose-200/90 leading-relaxed font-sans"></div>
+            <div id="oxygen-blowing-recommendation" class="pt-2 text-xs font-mono text-amber-300 bg-slate-950/60 p-2.5 rounded-lg border border-slate-800"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- The Recipe: Clean, Stylized Ferro-Alloy Addition Table for Melters -->
+      <div class="bg-slate-900 border border-slate-800/90 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="clipboard-list" class="w-5 h-5 text-amber-500"></i>
+            <h3 class="text-base font-bold text-white">Ferro-Alloy Addition Recipe</h3>
+          </div>
+          <span class="text-xs text-slate-400 font-medium">Exact quantities to charge into furnace</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead>
+              <tr class="text-xs uppercase text-slate-400 border-b border-slate-800 bg-slate-950/50">
+                <th class="py-3 px-3.5 font-semibold">Ferro-Alloy / Material</th>
+                <th class="py-3 px-3.5 text-right font-semibold">Weight to Add</th>
+                <th class="py-3 px-3.5 text-right font-semibold">% of Heat</th>
+                <th class="py-3 px-3.5 text-right font-semibold">Unit Price</th>
+                <th class="py-3 px-3.5 text-right font-semibold">Line Cost</th>
+              </tr>
+            </thead>
+            <tbody id="recipe-table-body" class="divide-y divide-slate-800/60 text-sm">
+              <tr>
+                <td colspan="5" class="py-8 text-center text-slate-500 font-normal">
+                  Select a grade and click "Calculate Optimized Charge" to generate the additions recipe.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Chemistry Verification: Before vs After vs Spec Window -->
+      <div class="bg-slate-900 border border-slate-800/90 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400"></i>
+            <h3 class="text-base font-bold text-white">Expected Final Chemistry vs Specification</h3>
+          </div>
+          <span class="text-xs text-slate-400 font-medium">Mass balance validation</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead>
+              <tr class="text-xs uppercase text-slate-400 border-b border-slate-800 bg-slate-950/50">
+                <th class="py-2.5 px-3.5 font-semibold">Element</th>
+                <th class="py-2.5 px-3.5 text-right font-semibold">Initial Ore %</th>
+                <th class="py-2.5 px-3.5 text-right font-semibold">Predicted Final %</th>
+                <th class="py-2.5 px-3.5 text-center font-semibold">Specification Window</th>
+                <th class="py-2.5 px-3.5 text-center font-semibold">Status</th>
+              </tr>
+            </thead>
+            <tbody id="verification-table-body" class="divide-y divide-slate-800/60 font-mono text-xs">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Optional Minimalist Comparison Chart -->
+        <div class="pt-4 border-t border-slate-800/80">
+          <div class="h-56">
+            <canvas id="compositionChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plain-English Metallurgical Notes (Softly Shaded Informational Card) -->
+      <div id="metallurgical-notes-card" class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 sm:p-6 text-slate-300 space-y-2">
+        <div class="flex items-center space-x-2 text-amber-400 mb-1">
+          <i data-lucide="info" class="w-4 h-4"></i>
+          <h4 class="text-xs font-bold uppercase tracking-wider">Metallurgical & Shop-Floor Notes</h4>
+        </div>
+        <p id="notes-content-text" class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+          The linear programming charge model calculates the minimum-cost ferro-alloy addition recipe satisfying all ASTM/EN element tolerances. Recovery rates account for typical induction furnace burn-off (98% Ni, 96% Mo, 90% Cr, 85% Mn, 82% Si). If carbon or silicon in scrap exceeds the grade maximum, decarburization via oxygen lancing or low-carbon steel dilution is recommended before tapping.
+        </p>
+      </div>
+
     </section>
 
   </main>
 
-  <!-- Footer -->
-  <footer class="border-t border-slate-800 bg-slate-950 py-4 text-center text-xs text-slate-500">
-    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between">
-      <span>AlloyForge Metallurgy Suite · Laxcon Steels CC BY 4.0 Reference Dataset</span>
-      <span class="mt-2 sm:mt-0 font-mono">351 Steel Grades · Constrained Linear Programming (HiGHS) · ML Recovery Yields</span>
+  <!-- Clean Minimal Footer -->
+  <footer class="border-t border-slate-900 bg-slate-950 py-4 text-center text-xs text-slate-500">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between">
+      <span>ScrapSmart Foundry Suite · 351 Steel & Alloy Grades</span>
+      <span class="mt-1 sm:mt-0 font-mono">Mass Conservation · HiGHS LP Solver</span>
     </div>
   </footer>
 

@@ -1,62 +1,110 @@
-/* style.css: Custom Foundry Theme Enhancements and Print Media Queries */
+/* style.css: Minimalist, High-Legibility Foundry UI for ScrapSmart */
 
-/* Custom scrollbar */
+/* Custom Clean Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #020617;
+  background: #090d16;
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 3px;
+  background: #273549;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #3b4e68;
 }
 
-/* Tab active state */
-.tab-btn.active {
-  background-color: #f59e0b;
-  color: #020617;
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+/* Big, Touch-Friendly Element Card Inputs */
+.element-card-input {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #030712;
+  border: 1px solid #1f2937;
+  border-radius: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  transition: all 0.15s ease-in-out;
+  min-height: 4.75rem;
 }
 
-/* Glow effects */
-.glow-amber {
-  box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
+.element-card-input:focus-within {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.35);
+  background-color: #0b1120;
 }
 
-/* Print styling for shop floor heat sheets */
+.element-card-input input {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #f8fafc;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  margin-top: 0.25rem;
+}
+
+.element-card-input input::-webkit-outer-spin-button,
+.element-card-input input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.element-card-input input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Range status border highlights */
+.element-card-input.status-excess {
+  border-color: rgba(244, 63, 94, 0.75);
+  background-color: rgba(244, 63, 94, 0.05);
+}
+
+.element-card-input.status-deficit {
+  border-color: rgba(245, 158, 11, 0.65);
+  background-color: rgba(245, 158, 11, 0.04);
+}
+
+.element-card-input.status-ok {
+  border-color: rgba(16, 185, 129, 0.55);
+  background-color: rgba(16, 185, 129, 0.03);
+}
+
+/* Print Heat Sheet Styling (Optimized for Foundry Shop-Floor Clipboards) */
 @media print {
   body {
-    background-color: white !important;
-    color: black !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
   }
-  header, footer, #tab-btn-optimizer, #tab-btn-recommender, #tab-btn-materials, #btn-calculate, #preset-menu, button {
+
+  header, footer, #btn-calculate, .quick-preset-container, button, #grade-search {
     display: none !important;
   }
+
   .bg-slate-900, .bg-slate-950, .bg-slate-800 {
-    background-color: white !important;
-    color: black !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
     border-color: #cbd5e1 !important;
+    box-shadow: none !important;
   }
+
   table {
     border-collapse: collapse;
     width: 100%;
   }
+
   th, td {
     border: 1px solid #94a3b8 !important;
-    color: black !important;
-    padding: 6px 8px !important;
+    color: #000000 !important;
+    padding: 6px 10px !important;
   }
-  #results-summary-cards {
-    display: flex;
-    gap: 12px;
+
+  #results-section {
+    display: block !important;
   }
-  #results-summary-cards > div {
-    border: 1px solid #94a3b8;
-    padding: 8px;
+
+  #res-target-grade-name, #res-total-cost, #res-added-mass {
+    color: #000000 !important;
   }
 }
