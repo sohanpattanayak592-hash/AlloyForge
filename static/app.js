@@ -89,33 +89,127 @@ async function loadGrades() {
   }
 }
 
-// Filter Grades Dropdown
+// Filter & Browse All 351 Grades Grouped by Family
 function filterGradesDropdown(searchTerm = null) {
   const input = document.getElementById("grade-search");
-  const term = (searchTerm !== null ? searchTerm : input.value).toLowerCase().trim();
   const dropdown = document.getElementById("grade-dropdown-list");
+  const familySelect = document.getElementById("grade-family-select");
   if (!dropdown) return;
 
-  const matches = allGrades.filter(g => 
-    g.grade.toLowerCase().includes(term) ||
-    g.family.toLowerCase().includes(term) ||
-    (g.equivalents && g.equivalents.toLowerCase().includes(term))
-  ).slice(0, 30);
+  const selectedFamily = familySelect ? familySelect.value : "All";
+
+  // If searchTerm is null or matches current selected grade name exactly upon focus, show all
+  let term = "";
+  if (searchTerm !== null) {
+    term = searchTerm.toLowerCase().trim();
+  } else if (input) {
+    const rawVal = input.value.trim();
+    if (selectedGrade && rawVal.toLowerCase() === selectedGrade.grade.toLowerCase()) {
+      term = ""; // Show all grades when focused on existing selection
+    } else {
+      term = rawVal.toLowerCase();
+    }
+  }
+
+  // Filter grades
+  let matches = allGrades.filter(g => {
+    const matchesFamily = (selectedFamily === "All") || (g.family.toLowerCase() === selectedFamily.toLowerCase());
+    if (!matchesFamily) return false;
+    if (!term) return true;
+
+    return g.grade.toLowerCase().includes(term) ||
+      g.family.toLowerCase().includes(term) ||
+      (g.equivalents && g.equivalents.toLowerCase().includes(term));
+  });
 
   if (matches.length === 0) {
-    dropdown.innerHTML = `<div class="p-3 text-xs text-slate-400">No matching steel grade found.</div>`;
-  } else {
-    dropdown.innerHTML = matches.map(g => `
-      <div onclick="selectGradeById('${g.id}')" class="p-3 hover:bg-slate-800 cursor-pointer transition">
-        <div class="flex items-center justify-between">
-          <span class="text-sm font-bold text-amber-300 font-mono">${g.grade}</span>
-          <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-medium">${g.family}</span>
-        </div>
-        ${g.equivalents ? `<p class="text-[11px] text-slate-400 mt-1 truncate">${g.equivalents}</p>` : ''}
-      </div>
-    `).join("");
+    dropdown.innerHTML = `
+      <div class="p-4 text-center text-xs text-slate-400">
+        <p>No steel grades found matching "${term}".</p>
+        <button onclick="clearGradeSearch()" class="mt-2 px-3 py-1 bg-slate-800 hover:bg-slate-700 text-amber-400 rounded-lg text-xs font-semibold">
+          Reset Filter & Show All 351 Alloys
+        </button>
+      </div>`;
+    dropdown.classList.remove("hidden");
+    return;
   }
+
+  // Group matches by family for organized browsing
+  const grouped = {};
+  matches.forEach(g => {
+    if (!grouped[g.family]) grouped[g.family] = [];
+    grouped[g.family].push(g);
+  });
+
+  let html = `
+    <div class="sticky top-0 bg-slate-950 px-3.5 py-2 border-b border-slate-800 flex items-center justify-between z-10 text-xs">
+      <span class="text-slate-300 font-bold">Showing <span class="text-amber-400 font-mono">${matches.length}</span> of ${allGrades.length} alloys</span>
+      ${term || selectedFamily !== "All" ? `
+        <button onclick="clearGradeSearch()" class="text-amber-400 hover:underline text-[11px] font-medium">Show All 351</button>
+      ` : ''}
+    </div>
+  `;
+
+  for (const [family, gradesList] of Object.entries(grouped)) {
+    html += `
+      <div class="family-group">
+        <div class="sticky top-8 bg-slate-950/95 backdrop-blur px-3.5 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800/80 flex justify-between items-center">
+          <span class="text-amber-400">${family}</span>
+          <span class="font-mono text-slate-500">${gradesList.length}</span>
+        </div>
+        <div>
+          ${gradesList.map(g => {
+            const isSelected = selectedGrade && selectedGrade.id === g.id;
+            return `
+              <div onclick="selectGradeById('${g.id}')" 
+                class="px-3.5 py-2.5 hover:bg-slate-800 cursor-pointer transition flex items-center justify-between ${isSelected ? 'bg-amber-500/10 border-l-2 border-amber-500' : ''}">
+                <div class="min-w-0 pr-2">
+                  <div class="flex items-center space-x-2">
+                    <span class="text-sm font-bold text-white font-mono">${g.grade}</span>
+                    ${isSelected ? '<span class="text-[10px] text-amber-400 font-semibold px-1.5 py-0.2 rounded bg-amber-500/20">Active</span>' : ''}
+                  </div>
+                  ${g.equivalents ? `<p class="text-[11px] text-slate-400 truncate mt-0.5">${g.equivalents}</p>` : ''}
+                </div>
+                <span class="text-[10px] text-slate-400 flex-shrink-0 font-medium">${g.family}</span>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  dropdown.innerHTML = html;
   dropdown.classList.remove("hidden");
+}
+
+// When clicking or focusing on the search box, select text and show all alloys
+function onGradeSearchFocus() {
+  const input = document.getElementById("grade-search");
+  if (input) input.select();
+  filterGradesDropdown(""); // Show full list of alloys in active family
+}
+
+// Clear search and show all 351 grades
+function clearGradeSearch() {
+  const input = document.getElementById("grade-search");
+  const familySelect = document.getElementById("grade-family-select");
+  if (input) input.value = "";
+  if (familySelect) familySelect.value = "All";
+  filterGradesDropdown("");
+  if (input) input.focus();
+}
+
+// Show all grades dropdown explicitly
+function showAllGradesDropdown() {
+  clearGradeSearch();
+}
+
+// When family filter changes
+function onFamilyFilterChange() {
+  const input = document.getElementById("grade-search");
+  if (input) input.value = "";
+  filterGradesDropdown("");
 }
 
 function selectGradeById(gradeId) {
@@ -123,7 +217,8 @@ function selectGradeById(gradeId) {
   if (grade) {
     selectGrade(grade);
     document.getElementById("grade-dropdown-list")?.classList.add("hidden");
-    document.getElementById("grade-search").value = grade.grade;
+    const searchInput = document.getElementById("grade-search");
+    if (searchInput) searchInput.value = grade.grade;
     runOptimization();
   }
 }
@@ -138,6 +233,11 @@ function selectGrade(grade) {
 
   const famEl = document.getElementById("active-grade-family");
   if (famEl) famEl.textContent = grade.family;
+
+  const familySelect = document.getElementById("grade-family-select");
+  if (familySelect && familySelect.value !== "All" && familySelect.value !== grade.family) {
+    familySelect.value = grade.family;
+  }
 
   const eqEl = document.getElementById("active-grade-equivalents");
   if (eqEl) {

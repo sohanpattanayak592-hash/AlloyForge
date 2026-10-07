@@ -65,28 +65,53 @@
         
         <!-- Target Grade Search & Dropdown -->
         <div class="md:col-span-7 space-y-2 relative">
-          <div class="flex justify-between items-center">
+          <div class="flex flex-wrap justify-between items-center gap-1.5">
             <label for="grade-search" class="text-xs font-bold uppercase tracking-wider text-slate-300">
-              Target Alloy Grade
+              Target Alloy Grade (<span id="total-grade-counter">351 available</span>)
             </label>
-            <span id="active-grade-family" class="text-xs text-amber-400 font-semibold"></span>
+            <!-- Family Filter Dropdown -->
+            <select id="grade-family-select" onchange="onFamilyFilterChange()"
+              class="bg-slate-950 border border-slate-700 hover:border-slate-600 rounded-lg px-2.5 py-1 text-xs text-amber-400 font-semibold outline-none transition cursor-pointer">
+              <option value="All">All 351 Alloys</option>
+              <option value="Austenitic">Austenitic (71)</option>
+              <option value="Duplex">Duplex (15)</option>
+              <option value="Nickel Alloy">Nickel Alloys (50)</option>
+              <option value="Tool Steel">Tool Steels (88)</option>
+              <option value="Martensitic">Martensitic (46)</option>
+              <option value="Ferritic">Ferritic (26)</option>
+              <option value="Carbon Steel (partial)">Carbon Steels (46)</option>
+              <option value="Precipitation Hardening">Precipitation Hardening (9)</option>
+            </select>
           </div>
 
           <div class="relative">
             <i data-lucide="search" class="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none"></i>
-            <input type="text" id="grade-search" placeholder="Type grade (e.g. AISI 316 L, 304, Inconel 718, D2)..." 
-              class="w-full bg-slate-950 border border-slate-700 hover:border-slate-600 focus:border-amber-500 rounded-xl pl-11 pr-4 py-3 text-base text-white font-medium outline-none transition"
-              oninput="filterGradesDropdown()" onfocus="filterGradesDropdown()">
+            <input type="text" id="grade-search" placeholder="Search or scroll 351 grades (e.g. 304, 316, Inconel, D2, H13)..." 
+              class="w-full bg-slate-950 border border-slate-700 hover:border-slate-600 focus:border-amber-500 rounded-xl pl-11 pr-10 py-3 text-base text-white font-medium outline-none transition"
+              oninput="filterGradesDropdown(this.value)" 
+              onfocus="onGradeSearchFocus()"
+              onclick="onGradeSearchFocus()">
             
-            <div id="grade-dropdown-list" class="hidden absolute top-full left-0 right-0 mt-1 max-h-64 overflow-y-auto bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-50 divide-y divide-slate-800">
-              <!-- Dropdown items inserted dynamically -->
+            <!-- Clear search button -->
+            <button type="button" id="btn-clear-grade-search" onclick="clearGradeSearch()" 
+              class="absolute right-3 top-3.5 text-slate-400 hover:text-white p-0.5 rounded transition">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+            
+            <div id="grade-dropdown-list" class="hidden absolute top-full left-0 right-0 mt-1 max-h-80 overflow-y-auto bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-50 divide-y divide-slate-800">
+              <!-- Dropdown items grouped by family inserted dynamically -->
             </div>
           </div>
 
           <!-- Active Grade Subtext -->
-          <p id="active-grade-equivalents" class="text-xs text-slate-400 truncate">
-            Selected: <span class="text-slate-200 font-mono font-medium">AISI 316 L (EN 1.4404 · S31603)</span>
-          </p>
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <p id="active-grade-equivalents" class="truncate">
+              Selected: <span class="text-slate-200 font-mono font-medium">AISI 316 L (EN 1.4404 · S31603)</span>
+            </p>
+            <button type="button" onclick="showAllGradesDropdown()" class="text-amber-400 hover:text-amber-300 font-semibold underline text-[11px] whitespace-nowrap ml-2">
+              Browse All (351)
+            </button>
+          </div>
         </div>
 
         <!-- Melt Batch Mass Input (Large touch target) -->
